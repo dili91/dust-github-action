@@ -23,6 +23,7 @@ their directories into a ZIP, and uploads it.
       alice@example.com
       bob@example.com
     availability: workspace_users
+    on-conflict: override
 ```
 
 The optional `names` input selects skills by their exact `name` in `SKILL.md`. Omit it to import all detected skills.
@@ -40,6 +41,10 @@ The optional `availability` input sets who can see and use the imported or updat
 Skills created by an API key have no editors, so with the default availability they are not discoverable by anyone.
 To make them visible, set `editors` (so those members can find and manage them) or set `availability` to
 `workspace_users` or `users_and_agents`. Admin API keys hold both permissions.
+
+The optional `on-conflict` input decides what happens when a skill with the same name already exists in the workspace:
+`error` rejects the whole import, `skip` skips that skill and reports it as skipped, and `override` updates the existing
+skill. It defaults to `error`, so to keep skills in sync on every push, set it to `override`.
 
 ### `upsert-agent-configs`
 
@@ -73,6 +78,7 @@ Each YAML file must include at minimum an `agent.handle` field. See [Agent confi
 | `names`         | no       | [upsert-skills] Newline-separated skill names to import. Defaults to all skills. |
 | `editors`       | no       | [upsert-skills] Newline-separated editor email addresses to add to imported or updated skills. |
 | `availability`  | no       | [upsert-skills] `editors`, `workspace_users` or `users_and_agents`. Defaults to `editors` for new skills. |
+| `on-conflict`   | no       | [upsert-skills] `error`, `skip` or `override` when a skill name already exists. Defaults to `error`. |
 | `agent-configs` | no       | [upsert-agent-configs] List of glob patterns for YAML agent config files |
 
 ## Common outputs
@@ -110,6 +116,7 @@ jobs:
           workspace-id: ${{ vars.DUST_WORKSPACE_ID }}
           api-key: ${{ secrets.DUST_API_KEY }}
           region: EU
+          on-conflict: override
 ```
 
 ### Sync agent configs on push
